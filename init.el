@@ -139,6 +139,11 @@
 
 ;;==================================================
 
+;;========================= COMPANY MODE =======================================
+(require 'company)
+(add-hook 'after-init-hook 'global-company-mode)
+;;==============================================================================
+
 ;; use google c++ style for c++ code
 (require 'google-c-style)
 (add-hook 'c++-mode-hook 'google-set-c-style)
