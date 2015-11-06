@@ -21,6 +21,7 @@
 
 ;; highlight parent matching
 (show-paren-mode t)
+(setq show-paren-style 'expression)
 
 ;; auto reload buffer if file has changed externally
 (global-auto-revert-mode 1)
@@ -31,6 +32,13 @@
 ;; put all backup files to temorary directory
 (setq backup-directory-alist `((".*" . , temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*", temporary-file-directory t)))
+
+;; remap window management
+(global-set-key (kbd "M-3") 'split-window-horizontally)
+(global-set-key (kbd "M-2") 'split-window-vertically)
+(global-set-key (kbd "M-1") 'delete-other-windows)
+(global-set-key (kbd "M-0") 'delete-window)
+(global-set-key (kbd "M-o") 'other-window)
 
 ;; Comment/uncomment current line or region
 (defun comment-or-uncomment-current-line-or-region ()
@@ -74,17 +82,61 @@
 ;; Disable prompts
 (fset 'yes-or-no-p 'y-or-n-p) ; "y or n" instead of "yes or no"
 
-;; MELPA package manager
+;;====================== MELPA package manager =================================
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
-;; TODO(hieupm37): install packages automatically
+(defun ensure-package-installed (&rest packages)
+  "Assure every package is installed, ask for installation if it’s not.
+Return a list of installed packages or nil for every skipped package."
+  (mapcar
+   (lambda (package)
+     (if (package-installed-p package)
+         nil
+       (if (y-or-n-p (format "Package %s is missing. Install it? " package))
+           (package-install package)
+         package)))
+   packages))
+
+;; make sure to have downloaded archive description.
+;; Or use package-archive-contents as suggested by Nicolas Dudebout
+(or (file-exists-p package-user-dir)
+    (package-refresh-contents))
+
+(ensure-package-installed 'zenburn-theme
+			  'moe-theme
+			  'helm
+			  'projectile
+			  'company
+			  'smartparens
+			  'google-c-style
+			  'ace-jump-mode
+			  'fill-column-indicator
+			  'powerline
+			  'smart-mode-line
+			  'smart-mode-line-powerline-theme
+			  'markdown-mode
+			  'magit) ;  --> (nil nil) if iedit and magit are already installed
+
+;;==============================================================================
 
 ;; Theme
-(require 'zenburn-theme)
-(load-theme 'zenburn t)
+;; (require 'zenburn-theme)
+(require 'moe-theme)
+(moe-theme-set-color 'purple)
+(powerline-moe-theme)
+(moe-dark)
+;; (load-theme 'zenburn t)
+
+(require 'powerline)
+(powerline-default-theme)
+
+;; (require 'smart-mode-line)
+;; (require 'smart-mode-line-powerline-theme)
+;; (setq sml/no-confirm-load-theme t)
+;; (sml/setup)
 
 ;; Enable semantic mode
 (semantic-mode 1)
@@ -137,6 +189,8 @@
 
 (setq projectile-switch-project-action 'helm-projectile)
 
+(add-to-list 'projectile-other-file-alist '("h" "cc"))
+(add-to-list 'projectile-other-file-alist '("cc" "h"))
 ;;==================================================
 
 ;;========================= COMPANY MODE =======================================
@@ -144,12 +198,22 @@
 (add-hook 'after-init-hook 'global-company-mode)
 ;;==============================================================================
 
+;;========================= SMARTPARENS ========================================
+(require 'smartparens-config)
+(show-smartparens-global-mode +1)
+(smartparens-global-mode 1)
+
+;; when you press RET, the curly braces automatically
+;; add another newline
+(sp-with-modes '(c-mode c++-mode)
+  (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+  (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
+                                            ("* ||\n[i]" "RET"))))
+;;==============================================================================
+
 ;; use google c++ style for c++ code
 (require 'google-c-style)
 (add-hook 'c++-mode-hook 'google-set-c-style)
-
-(require 'powerline)
-(powerline-default-theme)
 
 (require 'ace-jump-mode)
 (global-set-key (kbd "C-c w") 'ace-jump-word-mode)
@@ -161,3 +225,6 @@
 (setq fci-rule-column 80)
 (define-globalized-minor-mode global-fci-mode fci-mode (lambda () (fci-mode 1)))
 (global-fci-mode 1)
+
+;; Markdown mode
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
