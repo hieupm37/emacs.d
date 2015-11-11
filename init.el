@@ -40,6 +40,9 @@
 (global-set-key (kbd "M-0") 'delete-window)
 (global-set-key (kbd "M-o") 'other-window)
 
+;; Save desktop session
+(desktop-save-mode 1)
+
 ;; Comment/uncomment current line or region
 (defun comment-or-uncomment-current-line-or-region ()
   "Comments or uncomments current current line or whole lines in region."
@@ -118,6 +121,8 @@ Return a list of installed packages or nil for every skipped package."
 			  'smart-mode-line
 			  'smart-mode-line-powerline-theme
 			  'markdown-mode
+			  'etags-select
+			  'helm-descbinds
 			  'magit) ;  --> (nil nil) if iedit and magit are already installed
 
 ;;==============================================================================
@@ -125,18 +130,19 @@ Return a list of installed packages or nil for every skipped package."
 ;; Theme
 ;; (require 'zenburn-theme)
 (require 'moe-theme)
-(moe-theme-set-color 'purple)
-(powerline-moe-theme)
+;; (moe-theme-set-color 'purple)
+;; (powerline-moe-theme)
 (moe-dark)
 ;; (load-theme 'zenburn t)
 
-(require 'powerline)
-(powerline-default-theme)
+;; (require 'powerline)
+;; (powerline-default-theme)
 
-;; (require 'smart-mode-line)
-;; (require 'smart-mode-line-powerline-theme)
-;; (setq sml/no-confirm-load-theme t)
-;; (sml/setup)
+(require 'smart-mode-line)
+(require 'smart-mode-line-powerline-theme)
+(setq sml/no-confirm-load-theme t)
+(setq sml/theme 'powerline)
+(sml/setup)
 
 ;; Enable semantic mode
 (semantic-mode 1)
@@ -211,6 +217,32 @@ Return a list of installed packages or nil for every skipped package."
                                             ("* ||\n[i]" "RET"))))
 ;;==============================================================================
 
+;;======================= TAGS ================================================
+;; Refer: http://mattbriggs.net/blog/2012/03/18/awesome-emacs-plugins-ctags/
+;; (require 'etags-select)
+
+;; (defun visit-project-tags ()
+;;   (interactive)
+;;   (let ((tags-file (concat (projectile-project-root) "TAGS")))
+;;     (visit-tags-table tags-file)
+;;     (message (concat "Loaded " tags-file))))
+
+;; (setq tags-case-fold-search nil)
+
+;; (defun my-find-tag ()
+;;   (interactive)
+;;   (if (file-exists-p (concat (projectile-project-root) "TAGS"))
+;;       (visit-project-tags))
+;;   (etags-select-find-tag-at-point))
+
+
+;; (global-set-key (kbd "M-.") 'my-find-tag)
+(add-to-list 'load-path "~/.emacs.d/elisp/helm-etags-plus")
+(require 'helm-etags+)
+(global-set-key (kbd "M-.") 'helm-etags+-select)
+
+;;==============================================================================
+
 ;; use google c++ style for c++ code
 (require 'google-c-style)
 (add-hook 'c++-mode-hook 'google-set-c-style)
@@ -219,6 +251,10 @@ Return a list of installed packages or nil for every skipped package."
 (global-set-key (kbd "C-c w") 'ace-jump-word-mode)
 (global-set-key (kbd "C-c c") 'ace-jump-char-mode)
 (global-set-key (kbd "C-c l") 'ace-jump-line-mode)
+
+;; Helm key bindings description
+(require 'helm-descbinds)
+(helm-descbinds-mode)
 
 ;; highlight column after 80
 (require 'fill-column-indicator)
