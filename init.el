@@ -10,6 +10,14 @@
 ;; font on windows
 (set-default-font "Consolas-12")
 
+(when (eq system-type 'darwin)
+  ; remap Option/Alt -> Ctrl, Cmd -> Meta, Ctrl -> Super on OS X
+  (setq ns-alternate-modifier 'control
+	ns-right-alternate-modifier 'control
+	ns-command-modifier 'meta
+	ns-right-command-modifier 'meta)
+  )
+
 ;; show line number
 (global-linum-mode t)
 
@@ -108,10 +116,10 @@ Return a list of installed packages or nil for every skipped package."
 (or (file-exists-p package-user-dir)
     (package-refresh-contents))
 
-(ensure-package-installed 'zenburn-theme
-			  'moe-theme
+(ensure-package-installed 'moe-theme
 			  'helm
 			  'projectile
+			  'helm-projectile
 			  'company
 			  'smartparens
 			  'google-c-style
@@ -186,8 +194,8 @@ Return a list of installed packages or nil for every skipped package."
 ;;==================================================
 
 ;;================= PROJECTILE =====================
-(projectile-global-mode)
 (setq projectile-completion-system 'helm)
+(projectile-global-mode)
 (helm-projectile-on)
 
 ;; For windows, we use external indexing tool
