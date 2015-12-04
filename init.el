@@ -7,16 +7,17 @@
 (when (fboundp 'scroll-bar-mode) (scroll-bar-mode 0))
 (when (fboundp 'mouse-wheel-mode) (mouse-wheel-mode 0))
 
-(when (eq system-type 'window)
-  (set-default-font "Consolas-12"))
+(when (eq system-type 'windows-nt)
+  (set-face-attribute 'default nil :font "Consolas" :height 120)
+  )
 
-(if (eq system-type 'darwin)
+(when (eq system-type 'darwin)
   ; remap Option/Alt -> Ctrl, Cmd -> Meta, Ctrl -> Super on OS X
   (setq ns-alternate-modifier 'control
 	ns-right-alternate-modifier 'control
 	ns-command-modifier 'meta
 	ns-right-command-modifier 'meta)
-  (set-default-font "Source Code Pro-13")
+  (set-face-attribute 'default nil :font "Source Code Pro" :height 130)
   )
 
 ;; show line number
@@ -282,3 +283,12 @@ Return a list of installed packages or nil for every skipped package."
 
 ;; C++ mode for .h files
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
+;;========================== PROJECTS ==========================================
+(when (eq system-type 'windows-nt)
+  (setq browser-root "d:/workspace/browser/src/")
+  (if (file-exists-p (concat browser-root "AUTHORS"))
+      (progn (add-to-list 'load-path "d:/workspace/browser/src/tools/emacs")
+	     (require 'flymake-chromium)
+	     (message "Project %s loaded!" browser-root))
+    (message "Cannot find project %s" browser-root)))
